@@ -26,6 +26,8 @@ The Basic class require an <code>->isAuthorized()</code> method wich must use of
 
 The Digest classes require a <code>->getSecret($digest)</code> method wich will receive the digest parameters as array and will retreive from any source (ex: MySQL database) a secret token to be used for authentication.
 
+The Digest classes have an <code>->createSecret($username, $pass)</code> which generate the secret token to be stored to use with the current <code>$realm</code> of the instance, it's th same for all variants so you can for example offer to you users the choose of one of the 3 way to authenticate with no need to store differents secret tokens.
+
 Also note that the <code>Digest</code> classes are using an <code>http_parse_params()</code> function to parse Digest params which can be overriden by the <code>pecl_http</code> extension (not tested !). 
 
 Usage
@@ -40,15 +42,15 @@ Define a Class wich extend one of the base class (Basic/Digest/DigestQOP/DigestS
 For <code>Basic</code> write a class like this : 
 
 	class HttpAuth extends KevinMuret\HttpAuth\Basic {
-	  public function isLogged()// Return a boolean
-	  public function isAuthorized()// Retturn a boolean
+	  public function isLogged()// Return a boolean (Check if it has already been logged).
+	  public function isAuthorized()// Return a boolean (Check if user exists and the password is valid).
 	}
 
 For any one of the <code>Digest</code> familly write a class like this : 
 
 	class HttpAuth extends KevinMuret\HttpAuth\Digest {
-	  public function isLogged()// Return a boolean
-	  public function getSecret()// Return a string (A1)
+	  public function isLogged()// Return a boolean (Check if it has already been logged)
+	  public function getSecret($digest)// Return a string (Retreive the secret token for the specified user reading value of 'username' key from $digest array)
 	}
 
 In your scripts instance it this way for <code>Basic</code> (with an optional <code>$realm</code> value).
@@ -63,7 +65,7 @@ And for <code>DigestQOP</code> and <code>DigestSess</code> there is one more whi
 
 	$auth = new HttpAuth($realm, $nonce, ++$nc, $secret)
 
-For <code>Digest</code> classes you will have next to store somewhere the <code>$nonce</code> using <code>->nonce()</code> method to retreive it.
+For <code>Digest</code> classes you will have next to store somewhere the <code>$nonce</code> using <code>->nonce()</code> method to retreive it, and for QOP and Sess variants you hve to initialize a counter which will be incremented and used for comparaison with the <code>$nc</code> given by the client (this will generate different header on each request and increase security).
 
 For next you should look at the <code>$status</code> property which can be one of these 4 constants :
 
