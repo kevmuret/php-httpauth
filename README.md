@@ -26,7 +26,7 @@ The Basic class require an <code>->isAuthorized()</code> method wich must use of
 
 The Digest classes require a <code>->getSecret($digest)</code> method wich will receive the digest parameters as array and will retreive from any source (ex: MySQL database) a secret token to be used for authentication.
 
-The Digest classes have an <code>->createSecret($username, $pass)</code> which generate the secret token to be stored to use with the current <code>$realm</code> of the instance, it's th same for all variants so you can for example offer to you users the choose of one of the 3 way to authenticate with no need to store differents secret tokens.
+The Digest classes have an <code>->createSecret($username, $pass)</code> which generate the secret token to be stored to use with the current <code>$realm</code> of the instance, it's the same for all variants so you can for example offer to you users the choose of one of the 3 way to authenticate with no need to store differents secret tokens.
 
 Also note that the <code>Digest</code> classes are using an <code>http_parse_params()</code> function to parse Digest params which can be overriden by the <code>pecl_http</code> extension (not tested !). 
 
