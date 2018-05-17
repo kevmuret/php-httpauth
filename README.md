@@ -20,7 +20,7 @@ Other properties are overridable but you must know what you do. Actually it's po
 
 Use <code>->ask()</code> method to ask authorization using <code>header()</code> function (output of the script should be empty).
 
-Each class require an <code>->isLogged()</code> method which determine if the client were already logged or not. It will also bypass the call to <code>->isAuthorized()</code> and for Digest <code>->getSecret()</code> too because it will be called from the internally declared <code>->isAuthorized()</code> method.
+Each class can require an <code>->isLogged()</code> method (only if a <code>$secret</code> is provided since the user is authenticated) which determine if the client were already logged or not. It will also bypass the call to <code>->isAuthorized()</code> and for Digest <code>->getSecret()</code> too because it will be called from the internally declared <code>->isAuthorized()</code> method.
 
 The Basic class require an <code>->isAuthorized()</code> method wich must use of PHP global variables (<code>$_SERVER['PHP_AUTH_USER']</code> and <code>$_SERVER['PHP_AUTH_PW']</code>) to authenticate the client.
 
@@ -55,9 +55,9 @@ For any one of the <code>Digest</code> familly write a class like this :
 
 In your scripts instance it this way for <code>Basic</code> (with an optional <code>$realm</code> value).
 
-	$auth = new HttpAuth()
+	$auth = new HttpAuth($realm)
 
-For <code>Digest</code> it's a little bit more sofisticated because there is at least two more parameters that have to be given when authorization has been asked before.
+For <code>Digest</code> it's a little bit more sofisticated because there is at least two more parameters that have to be given when authorization has been asked before. Important: On first creation (when user has not been asked for authorization) <code>$secret</code> must be NULL and <code>$nonce</code> can be manually generated (if NULL or not provided <code>uniqid()</code> is used), for the next one request (when user has just typed his username and password) only the <code>$nonce</code> must be provided with the one generated previously for the user, on later requests the secret should be provided (if not it will be retreived again using <code>->getSecret($digest)</code>, it can help save performance using the <code>->isLogged()</code> which should be faster).
 
 	$auth = new HttpAuth($realm, $nonce, $secret)
 
@@ -65,7 +65,7 @@ And for <code>DigestQOP</code> and <code>DigestSess</code> there is one more whi
 
 	$auth = new HttpAuth($realm, $nonce, ++$nc, $secret)
 
-For <code>Digest</code> classes you will have next to store somewhere the <code>$nonce</code> using <code>->nonce()</code> method to retreive it, and for QOP and Sess variants you have to initialize a counter which will be incremented and used for comparaison with the <code>$nc</code> given by the client (this will generate different header on each request and increase security).
+For <code>Digest</code> classes you will have next to store somewhere the <code>$nonce</code> using <code>->nonce()</code> method to retreive it, and for QOP and Sess variants you have to initialize a counter (with zero value) which will be incremented and used for comparaison with the <code>$nc</code> given by the client (this will generate different header on each request and increase security).
 
 For next you should look at the <code>$status</code> property which can be one of these 4 constants :
 
@@ -73,3 +73,8 @@ For next you should look at the <code>$status</code> property which can be one o
 - <code>$auth::FAILED</code> Authentication has failed !
 - <code>$auth::JUSTLOGGED</code> Login should be started here. (For <code>Digest</code> you have to store the <code>$secret</code> using <code>->secret()</code> method to retreive it.
 - <code>$auth::LOGGED</code> Login were successfull !
+
+TODO
+======
+
+

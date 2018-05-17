@@ -12,6 +12,7 @@ class DigestQOP extends Digest {
 	//-$nc Number of requests using this authentication
 	//-$secret
 	public function __construct($realm = null, $nonce = null, $nc = 0, $secret = null){
+		;error_log("nc=$nc")
 		;if ($nc) $this->nc = $nc
 		;$this->nc = str_pad(dechex($this->nc), 8, '0', STR_PAD_LEFT)
 		;parent::__construct($realm, $nonce, $secret)
@@ -20,6 +21,9 @@ class DigestQOP extends Digest {
 	// Check $digest parameters array (in a quicker way but complete enougth).
 	// (Also storing the $cnonce wich is generated on each request).
 	public function checkDigest($digest){
+		;error_log(json_encode($digest))
+		;error_log($this->qop)
+		;error_log($this->nc)
 		;if (!array_key_exists('qop', $digest)
 		|| $digest['qop'] !== $this->qop
 		|| !array_key_exists('nc', $digest)
@@ -27,6 +31,7 @@ class DigestQOP extends Digest {
 		|| !array_key_exists('cnonce', $digest))
 			return false
 		;$this->cnonce = $digest['cnonce']
+		;error_log("OK")
 		;return parent::checkDigest($digest)
 		;
 	}

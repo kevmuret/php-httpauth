@@ -1,20 +1,14 @@
 <?php
 ;namespace KevinMuret\HttpAuth
 ;define('HTTPAUTHDIR', '../httpauth/src')
-;require_once HTTPAUTHDIR."/DigestQOP.php"
+;require_once HTTPAUTHDIR."/Digest.php"
 ;
-class HttpAuth extends DigestQOP {
+class HttpAuth extends Digest {
 	// List of users and passowrds
 	private $users_pwds = array(
 		'test' => 'foobar'
 	)
 	;
-	// Method to check if user has been already logged are not ?
-	// (Bypass the call to ->getSecret())
-	public function isLogged(){
-		;return array_key_exists('logged', $_SESSION)
-		;
-	}
 	// Method to fetch secret token (according given Digest parameters)
 	public function getSecret($digest){
 		// Check that username is not empty and exists
@@ -26,23 +20,21 @@ class HttpAuth extends DigestQOP {
 }
 
 // Start session before instanciate because ->isLogged() wil be called at this time
-;session_name("SDIGESTQOPID")
+;session_name("SDIGESTBISID")
 ;session_start()
 // If authorization already started ('nonce' value must be re-used)
 ;if (array_key_exists('auth_nonce', $_SESSION))
-	$auth = new HttpAuth(null, $_SESSION['auth_nonce'], ++$_SESSION['auth_nc'], $_SESSION['auth_secret'])
+	$auth = new HttpAuth(null, $_SESSION['auth_nonce'])
 // If not initalize session variables with a generated 'nonce' value
 ;else if ($auth = new HttpAuth())
 	// Should be completely reseted (ex: in case of others methods elsewhere on the same domain)
-	$_SESSION = array('auth_nonce' => $auth->nonce(), 'auth_secret' => null)
+	$_SESSION = array('auth_nonce' => $auth->nonce())
 // Check authentication status
 ;switch ($auth->status){
 case $auth::NOTLOGGED:
 	// Make sure there is no bypass to this login system
 	;if (array_key_exists('logged', $_SESSION))
 		unset($_SESSION['logged'])
-	// Force the counter to be zero
-	;$_SESSION['auth_nc'] = 0
 	// Ask for autorization (HTTP Code: 401)
 	;$auth->ask()
 	;break
@@ -50,7 +42,6 @@ case $auth::NOTLOGGED:
 case $auth::JUSTLOGGED:
 	// Login were just made !
 	;$_SESSION['logged'] = $_SERVER['REQUEST_TIME']
-	;$_SESSION['auth_secret'] = $auth->secret()
 	;
 case $auth::LOGGED:// Or previously logged !
 	;echo "Logged successfully !"

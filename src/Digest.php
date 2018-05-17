@@ -48,7 +48,7 @@ class Digest extends Basic {
 			|| !($digest = $digest->params)
 			|| !$this->checkDigest($digest))
 				$this->status = $this::FAILED
-			;else if ($this->isLogged())
+			;else if ($this->secret && $this->isLogged())
 				$this->status = $this::LOGGED
 			;else $this->status = $this->isAuthorized($digest)
 			;

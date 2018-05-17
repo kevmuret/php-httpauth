@@ -26,7 +26,7 @@ class HttpAuth extends DigestSess {
 }
 
 // Start session before instanciate because ->isLogged() wil be called at this time
-;session_name("SDIGESTQOPID")
+;session_name("SDIGESTSESSID")
 ;session_start()
 // If authorization already started ('nonce' value must be re-used)
 ;if (array_key_exists('auth_nonce', $_SESSION))
@@ -34,13 +34,15 @@ class HttpAuth extends DigestSess {
 // If not initalize session variables with a generated 'nonce' value
 ;else if ($auth = new HttpAuth())
 	// Should be completely reseted (ex: in case of others methods elsewhere on the same domain)
-	$_SESSION = array('auth_nonce' => $auth->nonce(), 'auth_secret' => null, 'auth_nc' => 0)
+	$_SESSION = array('auth_nonce' => $auth->nonce(), 'auth_secret' => null)
 // Check authentication status
 ;switch ($auth->status){
 case $auth::NOTLOGGED:
 	// Make sure there is no bypass to this login system
 	;if (array_key_exists('logged', $_SESSION))
 		unset($_SESSION['logged'])
+	// Force the counter to be zero
+	;$_SESSION['auth_nc'] = 0
 	// Ask for autorization (HTTP Code: 401)
 	;$auth->ask()
 	;break
