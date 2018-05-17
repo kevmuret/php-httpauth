@@ -65,7 +65,7 @@ And for <code>DigestQOP</code> and <code>DigestSess</code> there is one more whi
 
 	$auth = new HttpAuth($realm, $nonce, ++$nc, $secret)
 
-For <code>Digest</code> classes you will have next to store somewhere the <code>$nonce</code> using <code>->nonce()</code> method to retreive it, and for QOP and Sess variants you hve to initialize a counter which will be incremented and used for comparaison with the <code>$nc</code> given by the client (this will generate different header on each request and increase security).
+For <code>Digest</code> classes you will have next to store somewhere the <code>$nonce</code> using <code>->nonce()</code> method to retreive it, and for QOP and Sess variants you have to initialize a counter which will be incremented and used for comparaison with the <code>$nc</code> given by the client (this will generate different header on each request and increase security).
 
 For next you should look at the <code>$status</code> property which can be one of these 4 constants :
 
